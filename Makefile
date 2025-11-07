@@ -6,7 +6,7 @@
 #   bin/   → Compiled binaries (server, client)
 #   setup/ → Setup scripts (MySQL setup)
 # ==========================================================
-#  make run_client PARAMS="20 30 40 20 30 10"
+#  make run_client CPU="0-5" PARAMS="20 30 40 20 30 10"
 
 
 # Compiler and Flags
@@ -30,9 +30,9 @@ SERVER_BIN := $(BIN_DIR)/server
 CLIENT_BIN := $(BIN_DIR)/client
 TESTER_BIN := $(BIN_DIR)/tester
 
-
-
-
+# configurable runtime variables
+CPU ?= 0-5                    #default CPU cores for taskset
+PARAMS ?= 10 10 20 20 40 20   #default parameters taskset
 
 # ==========================================================
 # Default Target
@@ -54,14 +54,16 @@ setup_all:
 	@echo "==========================================================="
 	@echo "  Starting System Setup (Dependencies + Directories + MySQL)"
 	@echo "==========================================================="
-	@echo "--------> Updating APT repositories..."
+	@echo ">>>>> Updating APT repositories..."
 #	@sudo apt update -y
+	@echo " "
 	@echo "-----------------------------------------------------------"
-	@echo "--------> Installing required packages..."
+	@echo ">>>>> Installing required packages..."
 	@sudo apt install -y wget curl g++ make libmysqlclient-dev mysql-server mysql-client sysstat
 	@echo "-----------------------------------------------------------"
 	@echo "    Ensured all dependencies are installed successfully"
 	@echo "-----------------------------------------------------------"
+	@echo " "
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p results
 	@echo "Following directories"
@@ -72,13 +74,42 @@ setup_all:
 	@echo "Setting up MySQL Database..."
 	@sudo chmod +x $(SETUP_DIR)/mysql_setup.sql
 	@sudo mysql -u root -p < $(SETUP_DIR)/mysql_setup.sql
+	@echo "-----------------------------------------------------------"
+	@echo " "
+	@echo "Checking for httplib.h in $(SRC_DIR)..."
+	@if [ ! -f "$(SRC_DIR)/httplib.h" ]; then \
+		echo "httplib.h not found, downloading..."; \
+		wget -q -O $(SRC_DIR)/httplib.h https://raw.githubusercontent.com/yhirose/cpp-httplib/master/httplib.h; \
+		echo "Downloaded httplib.h to $(SRC_DIR)/"; \
+	else \
+		echo "httplib.h already exists in $(SRC_DIR). Skipping download."; \
+	fi
 # ==========================================================
-# MySQL only Setup
+# MySQL, Directory only Setup
 # ==========================================================
 setup_mysql:
 	@echo "Setting up MySQL Database..."
 	@sudo chmod +x $(SETUP_DIR)/mysql_setup.sql
 	@sudo mysql -u root -p < $(SETUP_DIR)/mysql_setup.sql
+setup_dir:
+	@mkdir -p $(BIN_DIR)
+	@mkdir -p results
+	@echo "Following directories"
+	@echo "- bin/" 
+	@echo "- results/"
+	@echo "..........all Exists.........."
+# ==========================================================
+# Setup httplib — download header only if not already present
+# ==========================================================
+setup_httplib:
+	@echo "Checking for httplib.h in $(SRC_DIR)..."
+	@if [ ! -f "$(SRC_DIR)/httplib.h" ]; then \
+		echo "httplib.h not found, downloading..."; \
+		wget -q -O $(SRC_DIR)/httplib.h https://raw.githubusercontent.com/yhirose/cpp-httplib/master/httplib.h; \
+		echo "Downloaded httplib.h to $(SRC_DIR)/"; \
+	else \
+		echo "httplib.h already exists in $(SRC_DIR). Skipping download."; \
+	fi
 
 
 
@@ -102,23 +133,22 @@ $(TESTER_BIN): $(TESTER_SRC)
 
 
 # ==========================================================
-# Run Server default where server pinned to core 7
-# Run Client defaault pinned to core 0-5
+# Run Server default where server or client  pinned to core 7
 # ==========================================================
 run_server: $(SERVER_BIN)
 	@echo "Starting server..."
-	@echo "taskset -c 7 "$(SERVER_BIN)
-	@taskset -c 7 $(SERVER_BIN)
+	@echo "taskset -c $(CPU) $(SERVER_BIN)"
+	@taskset -c $(CPU) $(SERVER_BIN)
 
 run_client: $(CLIENT_BIN)
 	@echo "Running client..."
-	@echo "taskset -c 0-5 "$(CLIENT_BIN) $(PARAMS)
-	@taskset -c 0-5 $(CLIENT_BIN) $(PARAMS)
+	@echo "Command: taskset -c $(CPU) $(CLIENT_BIN) $(PARAMS)"
+	@taskset -c $(CPU) $(CLIENT_BIN) $(PARAMS)
 
 run_tester: $(TESTER_BIN)
 	@echo "Running tester..."
-	@echo taskset -c 0-5 $(TESTER_BIN)
-	@taskset -c 0-5 $(TESTER_BIN)
+	@echo taskset -c $(CPU) $(TESTER_BIN)
+	@taskset -c $(CPU) $(TESTER_BIN)
 
 
 

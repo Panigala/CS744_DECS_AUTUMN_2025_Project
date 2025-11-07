@@ -108,7 +108,7 @@ void client_worker(int id, int duration, int get_ratio, int put_ratio, int del_r
             }
 
             // Any handled response >= 200 and not equals to 404 counts as success
-            if (result && result->status == 200 )
+            if (result && result->status >= 200 && result->status < 500)
                 ok = true;
 
         } catch (...) {// if no reponse from server etc...

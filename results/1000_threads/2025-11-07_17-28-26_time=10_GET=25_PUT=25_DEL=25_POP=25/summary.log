@@ -1,0 +1,21 @@
+========= Load Test Summary =========
+Threads: 1000
+Duration: 10 sec
+Total Requests: 5277
+GET: 1364 | PUT: 1288 | DELETE: 1314 | POPULAR: 1311
+Successful responses: 5265 (99.7726%)
+Failed responses: 12
+Throughput: 527.7 req/s
+Avg latency: 2101.52 ms
+====================================
+
+Server Cache Stats:
+{
+  "cache_size": 3774,
+  "cache_capacity": 5000,
+  "per_operation": {
+    "GET": {"requests": 6186, "hits": 1512, "misses": 4674, "hit_ratio": 24.44},
+    "POPULAR": {"requests": 3843, "hits": 3843, "misses": 0, "hit_ratio": 100.00}
+  },
+  "cumulative": {"requests": 10029, "hits": 5355, "misses": 4674, "hit_ratio": 53.40}
+}
