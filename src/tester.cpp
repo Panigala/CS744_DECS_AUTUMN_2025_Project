@@ -54,21 +54,21 @@ int main() {
     else
         cout << "POST failed\n";
 
-    // -------------------- GET (after POST) --------------------
-    cout << "\n[GET after POST] Request: " << base_path + key << endl;
-    auto get2_response = tester.Get((base_path + key).c_str());
-    if (get2_response)
-        cout << "Response (" << get2_response->status << "): " << get2_response->body << endl;
-    else
-        cout << "GET (after POST) failed\n";
-
-    // // -------------------- DELETE --------------------
-    // cout << "\n[DELETE] Request: " << base_path + key << endl;
-    // auto delete_response = tester.Delete((base_path + key).c_str());
-    // if (delete_response)
-    //     cout << "Response (" << delete_response->status << "): " << delete_response->body << endl;
+    // // -------------------- GET (after POST) --------------------
+    // cout << "\n[GET after POST] Request: " << base_path + key << endl;
+    // auto get2_response = tester.Get((base_path + key).c_str());
+    // if (get2_response)
+    //     cout << "Response (" << get2_response->status << "): " << get2_response->body << endl;
     // else
-    //     cout << "DELETE failed\n";
+    //     cout << "GET (after POST) failed\n";
+
+    // -------------------- DELETE --------------------
+    cout << "\n[DELETE] Request: " << base_path + key << endl;
+    auto delete_response = tester.Delete((base_path + key).c_str());
+    if (delete_response)
+        cout << "Response (" << delete_response->status << "): " << delete_response->body << endl;
+    else
+        cout << "DELETE failed\n";
 
 
     // -------------------- DELETE again (nonexistent key) --------------------
