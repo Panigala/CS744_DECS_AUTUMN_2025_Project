@@ -153,7 +153,7 @@ void client_worker(int id, int duration, int get_ratio, int put_ratio, int del_r
 //Main function
 int main(int argc, char *argv[]) {
     if (argc < 7) {
-        cerr << "Usage: ./client <threads> <duration_seconds> <GET_ratio> <PUT_ratio> <DELETE_ratio> <POPULAR_ratio>\n";
+        cerr << "Usage: arguments    <threads>    <duration_seconds>    <GET_ratio>    <PUT_ratio>    <DELETE_ratio>    <POPULAR_ratio>\n";
         cerr << "Example: ./client 10 20 50 20 20 10\n";
         return 1;
     }
@@ -177,7 +177,13 @@ int main(int argc, char *argv[]) {
     tm local_tm = *localtime(&t);
     stringstream ts;
     ts << put_time(&local_tm, "%Y-%m-%d_%H-%M-%S");
-    string logdir = "loader_thread_log/" + to_string(threads)+"_threads"+ "/" + ts.str() + "_time=" + to_string(duration) + "_GET=" + to_string(get_ratio)+ "_PUT=" + to_string(put_ratio)+ "_DEL=" + to_string(del_ratio)+ "_POP=" + to_string(popular_ratio); //directory name etc.. loader_thread_log/<number of threads>/<datetime>,........
+    string logdir = "results/" + to_string(threads) + "_threads/" +
+                ts.str() + "_time=" + to_string(duration) +
+                "_GET=" + to_string(get_ratio) +
+                "_PUT=" + to_string(put_ratio) +
+                "_DEL=" + to_string(del_ratio) +
+                "_POP=" + to_string(popular_ratio);
+     //directory name etc.. results/<number of threads>/<datetime>,........
     filesystem::create_directories(logdir); //creating the directory
 
     //just print for diagnostics what currently running i mean what kind of load

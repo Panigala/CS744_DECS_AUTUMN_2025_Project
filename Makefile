@@ -6,6 +6,8 @@
 #   bin/   → Compiled binaries (server, client)
 #   setup/ → Setup scripts (MySQL setup)
 # ==========================================================
+#  make run_client PARAM="20 30 40 20 30 10"
+
 
 # Compiler and Flags
 CXX := g++
@@ -16,6 +18,7 @@ LIBS := -lmysqlclient
 SRC_DIR := src
 BIN_DIR := bin
 SETUP_DIR := setup
+RES_DIR := results
 
 # Source files 
 SERVER_SRC := $(SRC_DIR)/server.cpp
@@ -108,7 +111,7 @@ run_server: $(SERVER_BIN)
 
 run_client: $(CLIENT_BIN)
 	@echo "Running client..."
-	@taskset -c 0-5 $(CLIENT_BIN) 10 10 50 20 20 10
+	@taskset -c 0-5 $(CLIENT_BIN) $(PARAM)
 
 run_tester: $(TESTER_BIN)
 	@echo "Running tester..."
@@ -124,5 +127,10 @@ clean:
 	@echo "Cleaning up......."
 	rm -f $(BIN_DIR)/*
 	@echo "Cleaning complete!"
+clean_all:
+	@echo "Cleaning up......."
+	rm -f $(BIN_DIR)/*
+	rm -rf $(RES_DIR)/*
+	@echo "Cleaning complete!"	
 
 .PHONY: all setup_dirs clean run_server run_client setup_mysql
