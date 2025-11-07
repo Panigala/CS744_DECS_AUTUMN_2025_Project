@@ -6,7 +6,7 @@
 #   bin/   → Compiled binaries (server, client)
 #   setup/ → Setup scripts (MySQL setup)
 # ==========================================================
-#  make run_client PARAM="20 30 40 20 30 10"
+#  make run_client PARAMS="20 30 40 20 30 10"
 
 
 # Compiler and Flags
@@ -107,14 +107,17 @@ $(TESTER_BIN): $(TESTER_SRC)
 # ==========================================================
 run_server: $(SERVER_BIN)
 	@echo "Starting server..."
+	@echo "taskset -c 7 "$(SERVER_BIN)
 	@taskset -c 7 $(SERVER_BIN)
 
 run_client: $(CLIENT_BIN)
 	@echo "Running client..."
-	@taskset -c 0-5 $(CLIENT_BIN) $(PARAM)
+	@echo "taskset -c 0-5 "$(CLIENT_BIN) $(PARAMS)
+	@taskset -c 0-5 $(CLIENT_BIN) $(PARAMS)
 
 run_tester: $(TESTER_BIN)
 	@echo "Running tester..."
+	@echo taskset -c 0-5 $(TESTER_BIN)
 	@taskset -c 0-5 $(TESTER_BIN)
 
 
