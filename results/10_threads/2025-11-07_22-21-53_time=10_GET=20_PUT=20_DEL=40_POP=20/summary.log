@@ -1,0 +1,13 @@
+========= Load Test Summary =========
+Threads: 10
+Duration: 10 sec
+Total Requests: 1827785
+GET: 364923 | PUT: 365269 | DELETE: 731085 | POPULAR: 366508
+Successful responses: 0 (0%)
+Failed responses: 1827785
+Throughput: 0 req/s
+Avg latency: 0 ms
+====================================
+
+Server Cache Stats:
+Cache stats unavailable

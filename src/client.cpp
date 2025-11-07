@@ -82,6 +82,7 @@ void client_worker(int id, int duration, int get_ratio, int put_ratio, int del_r
                 auto t_start = high_resolution_clock::now();
                 result = cli.Get(path.c_str());
                 auto t_end = high_resolution_clock::now();
+                if (result && result->status >= 200 && result->status < 500)
                 total_time_us += duration_cast<microseconds>(t_end - t_start).count();
                 get_count++;
 
@@ -89,6 +90,7 @@ void client_worker(int id, int duration, int get_ratio, int put_ratio, int del_r
                 auto t_start = high_resolution_clock::now();
                 result = cli.Put(path.c_str(), value, "text/plain");
                 auto t_end = high_resolution_clock::now();
+                if (result && result->status >= 200 && result->status < 500)
                 total_time_us += duration_cast<microseconds>(t_end - t_start).count();
                 put_count++;
 
@@ -96,6 +98,7 @@ void client_worker(int id, int duration, int get_ratio, int put_ratio, int del_r
                 auto t_start = high_resolution_clock::now();
                 result = cli.Delete(path.c_str());
                 auto t_end = high_resolution_clock::now();
+                if (result && result->status >= 200 && result->status < 500)
                 total_time_us += duration_cast<microseconds>(t_end - t_start).count();
                 del_count++;
 
@@ -103,6 +106,7 @@ void client_worker(int id, int duration, int get_ratio, int put_ratio, int del_r
                 auto t_start = high_resolution_clock::now();
                 result = cli.Get("/popular");
                 auto t_end = high_resolution_clock::now();
+                if (result && result->status >= 200 && result->status < 500)
                 total_time_us += duration_cast<microseconds>(t_end - t_start).count();
                 popular_count++;
             }
@@ -203,7 +207,7 @@ int main(int argc, char *argv[]) {
 
     // compute metrics avg lat, through put request/sec etc...
     double avg_latency_ms = (double)total_time_us / total_requests / 1000.0;
-    double throughput_rps = (double)total_requests / duration;
+    double throughput_rps = (double)total_success / duration;
     double success_rate = 100.0 * total_success / total_requests;
 
     // fetch server stats ie, cache hit rate etc..
