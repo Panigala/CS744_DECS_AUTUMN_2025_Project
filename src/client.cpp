@@ -32,7 +32,7 @@ Example:
 
 using namespace std;
 using namespace std::chrono;
-
+#define KEY_NUM 10000
 //global atomic counters
 atomic<int> total_requests(0);
 atomic<long long> total_time_us(0);
@@ -49,16 +49,125 @@ string random_text(mt19937 &gen, int length = 10) {
     return s;
 }
 
-// thread worker function
+
+
+//thread worker that go through a for-loop for keys and value is value_key
+// void client_worker(int id, int duration, int get_ratio, int put_ratio, int del_ratio, int popular_ratio,
+//                    const string &logdir) {
+//     httplib::Client cli("127.0.0.1", 8080);
+//     cli.set_read_timeout(5, 0);
+//     cli.set_write_timeout(5, 0);
+
+//     const int MAX_KEY = KEY_NUM; // total number of keys to iterate
+//     int total_ratio = get_ratio + put_ratio + del_ratio + popular_ratio;
+
+//     // per-thread stats
+//     int get_count = 0, put_count = 0, del_count = 0, popular_count = 0;
+//     int success_count = 0, fail_count = 0;
+    
+//     auto start_time = steady_clock::now();
+    
+//     //test with fixed loop
+//     // int loop_key = MAX_KEY;
+//     // while (loop_key--)
+
+//     // Continue for given duration
+//     while (duration_cast<seconds>(steady_clock::now() - start_time).count() < duration)
+//      {
+//         for (int key = 1; key <= MAX_KEY; ++key) {
+//             string path = "/table_key_value/" + to_string(key); //setting key
+//             string value = "value_" + to_string(key); //setting value as value_'key'
+//             bool ok = false; //for determining request success or not?
+//             httplib::Result result; //http response object
+
+//             // total_ratio = 100 (e.g., 10 + 20 + 30 + 40)
+//             int phase = (key % total_ratio); // decides operation phase based on key number
+//                 if (phase < get_ratio) {
+//                     // GET
+//                     auto t_start = high_resolution_clock::now();
+//                     result = cli.Get(path.c_str());
+//                     auto t_end = high_resolution_clock::now();
+//                     if (result && result->status >= 200 && result->status < 500)
+//                     total_time_us += duration_cast<microseconds>(t_end - t_start).count();
+//                     get_count++;
+//                 } else if (phase < get_ratio + put_ratio) {
+//                     // PUT
+//                     auto t_start = high_resolution_clock::now();
+//                     result = cli.Put(path.c_str(), value, "text/plain");
+//                     auto t_end = high_resolution_clock::now();
+//                     if (result && result->status >= 200 && result->status < 500)
+//                     total_time_us += duration_cast<microseconds>(t_end - t_start).count();
+//                     put_count++;
+//                 } else if (phase < get_ratio + put_ratio + del_ratio) {
+//                     // DELETE
+//                     auto t_start = high_resolution_clock::now();
+//                     result = cli.Delete(path.c_str());
+//                     auto t_end = high_resolution_clock::now();
+//                     if (result && result->status >= 200 && result->status < 500)
+//                     total_time_us += duration_cast<microseconds>(t_end - t_start).count();
+//                     del_count++;
+//                 } else {
+//                     // popular
+//                     auto t_start = high_resolution_clock::now();
+//                     result = cli.Get("/popular");
+//                     auto t_end = high_resolution_clock::now();
+//                     if (result && result->status >= 200 && result->status < 500)
+//                     total_time_us += duration_cast<microseconds>(t_end - t_start).count();
+//                     popular_count++;
+//                 }
+//                 if (result && result->status >= 200 && result->status < 500) 
+//                     success_count++;
+//                 else fail_count++;
+//                 total_requests++;
+
+//             // stop when duration exceeded
+//             if (duration_cast<seconds>(steady_clock::now() - start_time).count() >= duration)
+//                 break;
+//         }
+//     }
+
+//     // Merge per-thread stats into global totals
+//     total_get += get_count;
+//     total_put += put_count;
+//     total_del += del_count;
+//     total_popular += popular_count;
+//     total_success += success_count;
+//     total_fail += fail_count;
+
+//     /* -------------------------------------------------------------
+//      for debugging per thread details Save per-thread log
+//     / -------------------------------------------------------------*/
+//     // string logname = logdir + "/thread_" + to_string(id) + ".log";
+//     // ofstream log(logname);
+//     // log << "Thread " << id << " Summary\n";
+//     // log << "------------------------\n";
+//     // log << "GET ops: " << get_count << "\n";
+//     // log << "PUT ops: " << put_count << "\n";
+//     // log << "DELETE ops: " << del_count << "\n";
+//     // log << "POPULAR ops: " << popular_count << "\n";
+//     // log << "Success: " << success_count << "\n";
+//     // log << "Fail: " << fail_count << "\n";
+//     // log.close();
+// }
+
+
+
+
+
+
+
+
+
+// // thread worker function
 void client_worker(int id, int duration, int get_ratio, int put_ratio, int del_ratio, int popular_ratio,
                    const string &logdir) {
     httplib::Client cli("127.0.0.1", 8080);
     cli.set_read_timeout(5, 0); //maximum time wait for response here first argument 5 ie seconds, second argument 0 ie microseconds
     cli.set_write_timeout(5, 0); //maximum time wait sending anything to server here first argument 5 ie seconds, second argument 0 ie microseconds
 
-    // Random generators
+    // Random string generators
     mt19937 gen(random_device{}());
-    uniform_int_distribution<int> keydist(1, 10000); // random key range ie, key can be 1 to n, 
+    uniform_int_distribution<int> keydist(1, KEY_NUM); // random key range ie, key can be 1 to n, 
     uniform_int_distribution<int> opdist(1, 100);   // choose operation randomly ie total 100 ratio 
 
     // Per-thread counters
@@ -71,7 +180,8 @@ void client_worker(int id, int duration, int get_ratio, int put_ratio, int del_r
         int op = opdist(gen);  // random number generaatio between 1 to 100 for selecting which operation to do now
         int key = keydist(gen); //raandom key generaation
         string path = "/table_key_value/" + to_string(key); //generating request url endpoint
-        string value = random_text(gen, 12); // generate random string for value
+        // string value = random_text(gen, 12); // generate random string for value
+        string value = "value_" + to_string(key); //setting value as value_'key'
         bool ok = false;  // for determining the request success or failure
     
         try {
@@ -215,6 +325,12 @@ int main(int argc, char *argv[]) {
     auto stats = cli.Get("/stats");
     string cache_info = (stats && stats->status == 200) ? stats->body : "Cache stats unavailable";
 
+
+    // fetch popular cache data
+    auto popular = cli.Get("/popular");
+    string cache_popular = (popular && popular->status == 200) ? popular->body : "Popular data unavailable";
+
+
     // write summary log
     string summary_path = logdir + "/summary.log";
     ofstream summary(summary_path);
@@ -229,6 +345,7 @@ int main(int argc, char *argv[]) {
     summary << "Avg latency: " << avg_latency_ms << " ms\n";
     summary << "====================================\n\n";
     summary << "Server Cache Stats:\n" << cache_info << "\n"; //cache stats
+    summary << "Server Popular Stats:\n" << cache_popular << "\n"; //cache popular
     summary.close();
 
     // print summary on terminal 

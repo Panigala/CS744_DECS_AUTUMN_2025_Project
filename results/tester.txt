@@ -1,0 +1,110 @@
+Running tester...
+taskset -c 0-5 bin/tester
+================= Test: Key-Value API Server Request and Response =================
+
+[PUT] Request: /table_key_value/testkey
+Response (200): OK
+
+
+[PUT] Request: /table_key_value/testkey2
+Response (200): OK
+
+
+[GET] Request: /table_key_value/testkey
+Response (200): hello_world
+
+[POST] Request: /table_key_value/testkey
+Response (200): OK
+
+
+[DELETE] Request: /table_key_value/testkey
+Response (200): Deleted
+
+
+[DELETE again] (nonexistent key) Request: /table_key_value/testkey
+Response (404): 404 Not Found
+The requested resource (DELETE /table_key_value/testkey) does not exist.
+
+
+[GET] /popular
+Response (200): {
+  "cached_keys": ["testkey2"],
+  "count": 1, "total_cached": 1
+}
+
+[GET] /health
+Response (200): OK
+
+
+[GET] /invalid_endpoint
+Response (404): 404 Not Found
+The requested resource (GET /invalid_endpoint) does not exist.
+
+
+[GET] /stats
+Response (200): {
+  "cache_size": 1,
+  "cache_capacity": 5000,
+  "per_operation": {
+    "GET": {"requests": 2, "hits": 2, "misses": 0, "hit_ratio": 100.00},
+    "POPULAR": {"requests": 2, "hits": 2, "misses": 0, "hit_ratio": 100.00}
+  },
+  "cumulative": {"requests": 4, "hits": 4, "misses": 0, "hit_ratio": 100.00}
+}
+
+============================== Test Completed ===========================
+Running tester...
+taskset -c 0-5 bin/tester
+================= Test: Key-Value API Server Request and Response =================
+
+[PUT] Request: /table_key_value/testkey
+Response (200): OK
+
+
+[PUT] Request: /table_key_value/testkey2
+Response (200): OK
+
+
+[GET] Request: /table_key_value/testkey
+Response (200): hello_world
+
+[POST] Request: /table_key_value/testkey
+Response (200): OK
+
+
+[DELETE] Request: /table_key_value/testkey
+Response (200): Deleted
+
+
+[DELETE again] (nonexistent key) Request: /table_key_value/testkey
+Response (404): 404 Not Found
+The requested resource (DELETE /table_key_value/testkey) does not exist.
+
+
+[GET] /popular
+Response (200): {
+  "cached_keys": ["testkey2"],
+  "count": 1, "total_cached": 1
+}
+
+[GET] /health
+Response (200): OK
+
+
+[GET] /invalid_endpoint
+Response (404): 404 Not Found
+The requested resource (GET /invalid_endpoint) does not exist.
+
+
+[GET] /stats
+Response (200): {
+  "cache_size": 1,
+  "cache_capacity": 5000,
+  "per_operation": {
+    "GET": {"requests": 3, "hits": 3, "misses": 0, "hit_ratio": 100.00},
+    "POPULAR": {"requests": 3, "hits": 3, "misses": 0, "hit_ratio": 100.00}
+  },
+  "cumulative": {"requests": 6, "hits": 6, "misses": 0, "hit_ratio": 100.00}
+}
+
+============================== Test Completed ===========================
